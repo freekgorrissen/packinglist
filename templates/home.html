@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Home — Packing List{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Packing List</h1>
+<p class="lead">Manage trip categories, packing items, and generate printable packing lists.</p>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h2 class="h5 card-title">Trip Categories</h2>
+                <p class="card-text">Manage the building blocks for your trips.</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-outline-primary btn-sm" href="{% url 'member_list' %}">Family Members</a>
+                    <a class="btn btn-outline-primary btn-sm" href="{% url 'destination_list' %}">Destinations</a>
+                    <a class="btn btn-outline-primary btn-sm" href="{% url 'activity_list' %}">Activities</a>
+                    <a class="btn btn-outline-primary btn-sm" href="{% url 'accommodation_list' %}">Accommodations</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h2 class="h5 card-title">Packing Items</h2>
+                <p class="card-text">Define what to pack and when each item is needed.</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-outline-primary btn-sm" href="{% url 'section_list' %}">Sections</a>
+                    <a class="btn btn-outline-primary btn-sm" href="{% url 'item_list' %}">Items</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="h5 card-title">Trips</h2>
+                <p class="card-text">Create a trip and generate a printable packing list.</p>
+                <a class="btn btn-primary" href="{% url 'trip_list' %}">View Trips</a>
+                <a class="btn btn-success" href="{% url 'trip_create' %}">Create Trip</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

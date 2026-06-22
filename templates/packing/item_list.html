@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Packing Items — Packing List{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Packing Items</h1>
+    <a class="btn btn-primary" href="{% url 'item_create' %}">Add Item</a>
+</div>
+
+{% if items %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Section</th>
+            <th>Tags</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in items %}
+        <tr>
+            <td>
+                {{ item.name }}
+                {% if item.always %}<span class="badge bg-dark">Always</span>{% endif %}
+                <span class="badge bg-info text-dark">{{ item.get_packing_allocation_display }}</span>
+            </td>
+            <td>{{ item.section.name }}</td>
+            <td>
+                {% for dest in item.destinations.all %}
+                    <span class="badge bg-secondary">{{ dest.name }}</span>
+                {% endfor %}
+                {% for act in item.activities.all %}
+                    <span class="badge bg-primary">{{ act.name }}</span>
+                {% endfor %}
+                {% for acc in item.accommodations.all %}
+                    <span class="badge bg-success">{{ acc.name }}</span>
+                {% endfor %}
+                {% for member in item.family_members.all %}
+                    <span class="badge bg-warning text-dark">{{ member.name }}</span>
+                {% endfor %}
+                {% if item.weather_hot %}
+                    <span class="badge bg-danger">Hot</span>
+                {% endif %}
+                {% if item.weather_cold %}
+                    <span class="badge bg-info text-dark">Cold</span>
+                {% endif %}
+                {% if not item.always and not item.destinations.all and not item.activities.all and not item.accommodations.all and not item.family_members.all and not item.weather_hot and not item.weather_cold %}
+                    <span class="text-muted">No categories</span>
+                {% endif %}
+            </td>
+            <td class="text-end">
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'item_update' item.pk %}">Edit</a>
+                <a class="btn btn-sm btn-outline-danger" href="{% url 'item_delete' item.pk %}">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="text-muted">No packing items yet. <a href="{% url 'item_create' %}">Add one</a>.</p>
+{% endif %}
+{% endblock %}

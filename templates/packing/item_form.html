@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} Packing Item — Packing List{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{% if object %}Edit{% else %}Add{% endif %} Packing Item</h1>
+
+<form method="post" novalidate id="packing-item-form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endfor %}
+    {% endif %}
+
+    {% for field in form %}
+    {% if field.name == 'weather_cold' %}
+    {% elif field.name == 'weather_hot' %}
+    <div class="mb-3 trip-category-field">
+        <label class="form-label">Weather</label>
+        <p class="form-text">Optional. When set, this item is only included on trips with matching weather.</p>
+        <div class="border rounded p-3 category-options">
+            <div>
+                <label for="{{ form.weather_hot.id_for_label }}">
+                    {{ form.weather_hot }}
+                    Hot
+                </label>
+            </div>
+            <div>
+                <label for="{{ form.weather_cold.id_for_label }}">
+                    {{ form.weather_cold }}
+                    Cold
+                </label>
+            </div>
+        </div>
+        {% for error in form.weather_hot.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+        {% for error in form.weather_cold.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="mb-3{% if field.name == 'destinations' %} category-fields-start{% endif %}{% if field.name == 'destinations' or field.name == 'activities' or field.name == 'accommodations' %} trip-category-field{% endif %}{% if field.name == 'family_members' %} family-members-field{% endif %}">
+        {% if field.name == 'always' %}
+            <div class="form-check">
+                {{ field }}
+                <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            </div>
+            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+        {% elif field.name == 'packing_allocation' %}
+            <label class="form-label">{{ field.label }}</label>
+            {% if field.help_text %}<div class="form-text mb-2">{{ field.help_text }}</div>{% endif %}
+            <div class="allocation-options">
+                {% for radio in field %}
+                <div class="form-check">
+                    {{ radio.tag }}
+                    <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        {% elif field.name == 'destinations' or field.name == 'activities' or field.name == 'accommodations' or field.name == 'family_members' %}
+            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {% if field.name == 'destinations' %}
+                <p class="form-text category-helper-text">{{ category_helper_text }}</p>
+            {% endif %}
+            <div class="border rounded p-3 category-options">
+                {{ field }}
+            </div>
+        {% else %}
+            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+        {% endif %}
+        {% for error in field.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endfor %}
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Save</button>
+        {% if not object %}
+        <button type="submit" name="save_and_add" value="1" class="btn btn-outline-primary">Save and add new</button>
+        {% endif %}
+        <a class="btn btn-outline-secondary" href="{% url 'item_list' %}">Cancel</a>
+    </div>
+</form>
+
+<script>
+(function () {
+    const alwaysCheckbox = document.getElementById('id_always');
+    const tripCategoryFields = document.querySelectorAll('.trip-category-field');
+
+    function toggleCategoryFields() {
+        const disabled = alwaysCheckbox && alwaysCheckbox.checked;
+        tripCategoryFields.forEach(function (field) {
+            field.classList.toggle('category-disabled', disabled);
+            field.querySelectorAll('input[type="checkbox"]').forEach(function (input) {
+                input.disabled = disabled;
+                if (disabled) {
+                    input.checked = false;
+                }
+            });
+        });
+    }
+
+    if (alwaysCheckbox) {
+        alwaysCheckbox.addEventListener('change', toggleCategoryFields);
+        toggleCategoryFields();
+    }
+})();
+</script>
+{% endblock %}

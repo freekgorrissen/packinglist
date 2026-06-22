@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load member_icons %}
+
+{% block title %}{{ trip.name }} — Packing List{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 no-print">
+    <div>
+        <h1 class="mb-0">{{ trip.name }}</h1>
+        <p class="text-muted mb-0">
+            {% if trip.start_date %}{{ trip.start_date }}{% endif %}
+            {% if trip.end_date %} – {{ trip.end_date }}{% endif %}
+            · {{ entry_count }} item{{ entry_count|pluralize }}
+        </p>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-primary" onclick="window.print()">Print</button>
+        <a class="btn btn-outline-secondary" href="{% url 'trip_list' %}">Back to Trips</a>
+    </div>
+</div>
+
+{% if display_sections %}
+    {% for section_display in display_sections %}
+    <section class="packing-section mb-4">
+        <h2 class="h4 border-bottom pb-2">{{ section_display.section.name }}</h2>
+
+        <div class="row g-3 packing-column-row">
+            {% for column in section_display.columns %}
+            <div class="col packing-column">
+                <div class="packing-column-card h-100">
+                    <h3 class="h6 column-header mb-2 d-flex align-items-center gap-2">
+                        {% if column.member_icon %}
+                            {% member_icon column.member_icon %}
+                        {% endif %}
+                        <span>{{ column.label }}</span>
+                    </h3>
+                    <ul class="list-unstyled packing-items mb-0">
+                        {% for entry in column.entries %}
+                        <li class="packing-item">
+                            <label class="d-flex align-items-center gap-2">
+                                <input type="checkbox" class="form-check-input">
+                                <span>{{ entry.item.name }}</span>
+                            </label>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endfor %}
+{% else %}
+<p class="text-muted">No packing items match this trip. Add items or adjust trip categories.</p>
+{% endif %}
+{% endblock %}

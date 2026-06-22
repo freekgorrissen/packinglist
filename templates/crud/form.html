@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load member_icons %}
+
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} {{ singular }} — Packing List{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{% if object %}Edit{% else %}Add{% endif %} {{ singular }}</h1>
+
+<form method="post" novalidate>
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="mb-3">
+        {% if field.name == 'member_type' %}
+            <label class="form-label">{{ field.label }}</label>
+            <div class="allocation-options">
+                {% for radio in field %}
+                <div class="form-check">
+                    {{ radio.tag }}
+                    <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        {% elif field.name == 'icon' %}
+            <label class="form-label">{{ field.label }}</label>
+            <div class="icon-picker allocation-options">
+                {% for radio in field %}
+                <div class="form-check icon-picker-option">
+                    {{ radio.tag }}
+                    <label class="form-check-label icon-picker-label" for="{{ radio.id_for_label }}">
+                        {% member_icon radio.data.value %}
+                        <span>{{ radio.choice_label }}</span>
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+        {% endif %}
+        {% for error in field.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a class="btn btn-outline-secondary" href="{% url list_url_name %}">Cancel</a>
+    </div>
+</form>
+{% endblock %}

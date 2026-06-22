@@ -1,0 +1,9 @@
+# Project Rules
+
+## Model Identification
+- Before answering questions, always state the name and version of the model being used.
+
+## Unit Testing
+- When writing new code functionality, always add unit tests when appropriate.
+- Tests should cover the core behavior of the new functionality, not trivial or obvious cases.
+- Follow existing test conventions and frameworks in the project when present.

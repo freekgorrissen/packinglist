@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}{% if object %}Edit{% else %}Create{% endif %} Trip — Packing List{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{% if object %}Edit{% else %}Create{% endif %} Trip</h1>
+
+<form method="post" novalidate>
+    {% csrf_token %}
+    {% for field in form %}
+    {% if field.name == 'weather_hot' %}
+    <div class="mb-3">
+        <label class="form-label">Weather</label>
+        <div class="border rounded p-3">
+            <div class="form-check">
+                {{ form.weather_hot }}
+                <label class="form-check-label" for="{{ form.weather_hot.id_for_label }}">Hot</label>
+            </div>
+            <div class="form-check">
+                {{ form.weather_cold }}
+                <label class="form-check-label" for="{{ form.weather_cold.id_for_label }}">Cold</label>
+            </div>
+        </div>
+        {% for error in form.weather_hot.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+        {% for error in form.weather_cold.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    {% elif field.name == 'weather_cold' %}
+    {% else %}
+    <div class="mb-3">
+        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {% if field.name == 'family_members' or field.name == 'destinations' or field.name == 'activities' or field.name == 'accommodations' %}
+            <div class="border rounded p-3">
+                {{ field }}
+            </div>
+        {% else %}
+            {{ field }}
+        {% endif %}
+        {% for error in field.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endfor %}
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a class="btn btn-outline-secondary" href="{% url 'trip_list' %}">Cancel</a>
+    </div>
+</form>
+{% endblock %}
