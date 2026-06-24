@@ -213,6 +213,52 @@ class ViewTests(TestCase):
         self.assertEqual(response.url, reverse('item_create'))
         self.assertTrue(PackingItem.objects.filter(name='Reusable item').exists())
 
+    def test_item_form_batch_add_creates_multiple_items(self):
+        response = self.client.post(
+            reverse('item_create'),
+            {
+                'batch_add': 'on',
+                'batch_names': ['Sun hat', 'Sandals', ''],
+                'section': self.section.pk,
+                'notes': 'Beach gear',
+                'packing_allocation': 'shared',
+                'destinations': [self.beach.pk],
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        items = PackingItem.objects.filter(name__in=['Sun hat', 'Sandals'])
+        self.assertEqual(items.count(), 2)
+        for item in items:
+            self.assertEqual(item.notes, 'Beach gear')
+            self.assertEqual(list(item.destinations.all()), [self.beach])
+
+    def test_item_form_batch_add_requires_names(self):
+        response = self.client.post(
+            reverse('item_create'),
+            {
+                'batch_add': 'on',
+                'batch_names': ['', ''],
+                'section': self.section.pk,
+                'notes': '',
+                'packing_allocation': 'shared',
+                'destinations': [self.beach.pk],
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Enter at least one item name for batch add')
+        self.assertEqual(PackingItem.objects.count(), 2)
+
+    def test_item_form_layout_elements(self):
+        response = self.client.get(reverse('item_create'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Batch add')
+        self.assertContains(response, 'data-member-type="all"')
+        self.assertContains(response, 'data-member-type="adult"')
+        self.assertContains(response, 'data-member-type="child"')
+        self.assertContains(response, 'data-member-type="pet"')
+        self.assertContains(response, 'name="save_and_add"', count=2)
+        self.assertNotContains(response, '<textarea')
+
     def test_item_list_shows_tags(self):
         response = self.client.get(reverse('item_list'))
         self.assertEqual(response.status_code, 200)

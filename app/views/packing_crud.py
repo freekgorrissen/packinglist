@@ -4,7 +4,7 @@ from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
 from app.forms import CATEGORY_HELPER_TEXT, PackingItemForm, PackingSectionForm
 from app.mixins import AppAccessMixin
-from app.models import PackingItem, PackingSection
+from app.models import FamilyMember, MemberType, PackingItem, PackingSection
 from app.views.crud_factory import CrudConfig, make_create_view, make_delete_view, make_list_view, make_update_view
 
 SECTION_CONFIG = CrudConfig(
@@ -47,6 +47,12 @@ class PackingItemFormMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['category_helper_text'] = CATEGORY_HELPER_TEXT
+        context['family_member_ids_by_type'] = {
+            member_type.value: list(
+                FamilyMember.objects.filter(member_type=member_type.value).values_list('pk', flat=True)
+            )
+            for member_type in MemberType
+        }
         return context
 
 
@@ -56,7 +62,24 @@ class PackingItemCreateView(AppAccessMixin, PackingItemFormMixin, CreateView):
     template_name = 'packing/item_form.html'
     success_url = reverse_lazy('item_list')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.method == 'POST':
+            context['batch_add_checked'] = 'batch_add' in self.request.POST
+            context['batch_names'] = self.request.POST.getlist('batch_names')
+        else:
+            context['batch_add_checked'] = False
+            context['batch_names'] = []
+        return context
+
     def form_valid(self, form):
+        if form.batch_add:
+            for name in form.batch_names:
+                form.save_new_item(name)
+            if 'save_and_add' in self.request.POST:
+                return redirect('item_create')
+            return redirect(self.success_url)
+
         response = super().form_valid(form)
         if 'save_and_add' in self.request.POST:
             return redirect('item_create')

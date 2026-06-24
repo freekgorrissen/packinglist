@@ -13,9 +13,140 @@
         {% endfor %}
     {% endif %}
 
-    {% for field in form %}
-    {% if field.name == 'weather_cold' %}
-    {% elif field.name == 'weather_hot' %}
+    <div class="mb-3">
+        <div id="single-name-field">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <label class="form-label mb-0" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+                {% if not object %}
+                <div class="form-check mb-0">
+                    <input type="checkbox" class="form-check-input" id="batch-add-toggle" name="batch_add"
+                           {% if batch_add_checked %}checked{% endif %}>
+                    <label class="form-check-label" for="batch-add-toggle">Batch add</label>
+                </div>
+                {% endif %}
+            </div>
+            {{ form.name }}
+        </div>
+        {% if not object %}
+        <div id="batch-names-field" class="d-none">
+            <label class="form-label">Names</label>
+            <div id="batch-names-list">
+                {% if batch_names %}
+                    {% for batch_name in batch_names %}
+                    <input type="text" name="batch_names" class="form-control mb-2" placeholder="Item name"
+                           value="{{ batch_name }}">
+                    {% endfor %}
+                {% else %}
+                    <input type="text" name="batch_names" class="form-control mb-2" placeholder="Item name">
+                    <input type="text" name="batch_names" class="form-control mb-2" placeholder="Item name">
+                {% endif %}
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="add-batch-name">Add another</button>
+        </div>
+        {% endif %}
+        {% for error in form.name.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="{{ form.section.id_for_label }}">{{ form.section.label }}</label>
+        {{ form.section }}
+        {% for error in form.section.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="{{ form.notes.id_for_label }}">{{ form.notes.label }}</label>
+        {{ form.notes }}
+        {% for error in form.notes.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="mb-3">
+        <div class="form-check">
+            {{ form.always }}
+            <label class="form-check-label" for="{{ form.always.id_for_label }}">{{ form.always.label }}</label>
+        </div>
+        {% if form.always.help_text %}<div class="form-text">{{ form.always.help_text }}</div>{% endif %}
+        {% for error in form.always.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">{{ form.packing_allocation.label }}</label>
+        {% if form.packing_allocation.help_text %}<div class="form-text mb-2">{{ form.packing_allocation.help_text }}</div>{% endif %}
+        <div class="allocation-options">
+            {% for radio in form.packing_allocation %}
+            <div class="form-check">
+                {{ radio.tag }}
+                <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+            </div>
+            {% endfor %}
+        </div>
+        {% for error in form.packing_allocation.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="mb-3 family-members-field" id="family-members-field">
+        <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+            <label class="form-label mb-0" for="{{ form.family_members.id_for_label }}">{{ form.family_members.label }}</label>
+            <div class="btn-group btn-group-sm" role="group" aria-label="Family member shortcuts">
+                <button type="button" class="btn btn-outline-secondary member-shortcut" data-member-type="all">All</button>
+                <button type="button" class="btn btn-outline-secondary member-shortcut" data-member-type="adult">Adults</button>
+                <button type="button" class="btn btn-outline-secondary member-shortcut" data-member-type="child">Children</button>
+                <button type="button" class="btn btn-outline-secondary member-shortcut" data-member-type="pet">Pets</button>
+            </div>
+        </div>
+        <div class="border rounded p-3 category-options">
+            {{ form.family_members }}
+        </div>
+        {% for error in form.family_members.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+        {% if not object %}
+        <div class="d-flex gap-2 mt-3">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="submit" name="save_and_add" value="1" class="btn btn-outline-primary">Save and add new</button>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="mb-3 trip-category-field">
+        <label class="form-label" for="{{ form.accommodations.id_for_label }}">{{ form.accommodations.label }}</label>
+        <div class="border rounded p-3 category-options">
+            {{ form.accommodations }}
+        </div>
+        {% for error in form.accommodations.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="mb-3 trip-category-field category-fields-start">
+        <label class="form-label" for="{{ form.destinations.id_for_label }}">{{ form.destinations.label }}</label>
+        <p class="form-text category-helper-text">{{ category_helper_text }}</p>
+        <div class="border rounded p-3 category-options">
+            {{ form.destinations }}
+        </div>
+        {% for error in form.destinations.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="mb-3 trip-category-field">
+        <label class="form-label" for="{{ form.activities.id_for_label }}">{{ form.activities.label }}</label>
+        <div class="border rounded p-3 category-options">
+            {{ form.activities }}
+        </div>
+        {% for error in form.activities.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+
     <div class="mb-3 trip-category-field">
         <label class="form-label">Weather</label>
         <p class="form-text">Optional. When set, this item is only included on trips with matching weather.</p>
@@ -40,44 +171,7 @@
             <div class="text-danger">{{ error }}</div>
         {% endfor %}
     </div>
-    {% else %}
-    <div class="mb-3{% if field.name == 'destinations' %} category-fields-start{% endif %}{% if field.name == 'destinations' or field.name == 'activities' or field.name == 'accommodations' %} trip-category-field{% endif %}{% if field.name == 'family_members' %} family-members-field{% endif %}">
-        {% if field.name == 'always' %}
-            <div class="form-check">
-                {{ field }}
-                <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-            </div>
-            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
-        {% elif field.name == 'packing_allocation' %}
-            <label class="form-label">{{ field.label }}</label>
-            {% if field.help_text %}<div class="form-text mb-2">{{ field.help_text }}</div>{% endif %}
-            <div class="allocation-options">
-                {% for radio in field %}
-                <div class="form-check">
-                    {{ radio.tag }}
-                    <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
-                </div>
-                {% endfor %}
-            </div>
-        {% elif field.name == 'destinations' or field.name == 'activities' or field.name == 'accommodations' or field.name == 'family_members' %}
-            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-            {% if field.name == 'destinations' %}
-                <p class="form-text category-helper-text">{{ category_helper_text }}</p>
-            {% endif %}
-            <div class="border rounded p-3 category-options">
-                {{ field }}
-            </div>
-        {% else %}
-            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-            {{ field }}
-            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
-        {% endif %}
-        {% for error in field.errors %}
-            <div class="text-danger">{{ error }}</div>
-        {% endfor %}
-    </div>
-    {% endif %}
-    {% endfor %}
+
     <div class="d-flex gap-2">
         <button type="submit" class="btn btn-primary">Save</button>
         {% if not object %}
@@ -87,10 +181,13 @@
     </div>
 </form>
 
+{{ family_member_ids_by_type|json_script:"family-member-ids" }}
+
 <script>
 (function () {
     const alwaysCheckbox = document.getElementById('id_always');
     const tripCategoryFields = document.querySelectorAll('.trip-category-field');
+    const memberIdsByType = JSON.parse(document.getElementById('family-member-ids').textContent);
 
     function toggleCategoryFields() {
         const disabled = alwaysCheckbox && alwaysCheckbox.checked;
@@ -108,6 +205,65 @@
     if (alwaysCheckbox) {
         alwaysCheckbox.addEventListener('change', toggleCategoryFields);
         toggleCategoryFields();
+    }
+
+    document.querySelectorAll('.member-shortcut').forEach(function (button) {
+        button.addEventListener('click', function () {
+            const memberType = button.dataset.memberType;
+            const field = document.getElementById('family-members-field');
+            const checkboxes = field.querySelectorAll('input[type="checkbox"]');
+
+            if (memberType === 'all') {
+                checkboxes.forEach(function (input) {
+                    input.checked = true;
+                });
+                return;
+            }
+
+            const memberIds = memberIdsByType[memberType] || [];
+            checkboxes.forEach(function (input) {
+                input.checked = memberIds.includes(Number(input.value));
+            });
+        });
+    });
+
+    const batchToggle = document.getElementById('batch-add-toggle');
+    const singleNameField = document.getElementById('single-name-field');
+    const batchNamesField = document.getElementById('batch-names-field');
+    const batchNamesList = document.getElementById('batch-names-list');
+    const addBatchNameButton = document.getElementById('add-batch-name');
+    const nameInput = document.getElementById('id_name');
+
+    function toggleBatchAdd() {
+        if (!batchToggle) {
+            return;
+        }
+        const batchMode = batchToggle.checked;
+        singleNameField.classList.toggle('d-none', batchMode);
+        batchNamesField.classList.toggle('d-none', !batchMode);
+        if (nameInput) {
+            nameInput.disabled = batchMode;
+            if (batchMode) {
+                nameInput.value = '';
+            }
+        }
+    }
+
+    if (batchToggle) {
+        batchToggle.addEventListener('change', toggleBatchAdd);
+        toggleBatchAdd();
+    }
+
+    if (addBatchNameButton && batchNamesList) {
+        addBatchNameButton.addEventListener('click', function () {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.name = 'batch_names';
+            input.className = 'form-control mb-2';
+            input.placeholder = 'Item name';
+            batchNamesList.appendChild(input);
+            input.focus();
+        });
     }
 })();
 </script>

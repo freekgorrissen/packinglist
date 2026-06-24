@@ -16,6 +16,7 @@ from app.models import (
 
 TEXT_INPUT = forms.TextInput(attrs={'class': 'form-control'})
 TEXTAREA = forms.Textarea(attrs={'class': 'form-control', 'rows': 3})
+SINGLE_LINE_TEXT = forms.TextInput(attrs={'class': 'form-control'})
 NUMBER_INPUT = forms.NumberInput(attrs={'class': 'form-control'})
 SELECT = forms.Select(attrs={'class': 'form-select'})
 RADIO = forms.RadioSelect()
@@ -94,17 +95,17 @@ class PackingItemForm(forms.ModelForm):
             'notes',
             'always',
             'packing_allocation',
-            'weather_hot',
-            'weather_cold',
+            'family_members',
+            'accommodations',
             'destinations',
             'activities',
-            'accommodations',
-            'family_members',
+            'weather_hot',
+            'weather_cold',
         ]
         widgets = {
             'name': TEXT_INPUT,
             'section': SELECT,
-            'notes': TEXTAREA,
+            'notes': SINGLE_LINE_TEXT,
             'always': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'packing_allocation': RADIO,
             'weather_hot': forms.CheckboxInput(),
@@ -117,6 +118,9 @@ class PackingItemForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.batch_add = self.data.get('batch_add') in ('on', '1') if self.data else False
+        if self.batch_add:
+            self.fields['name'].required = False
         self.fields['always'].help_text = (
             'Include this item on every trip. You can still limit it to specific family members.'
         )
@@ -128,6 +132,11 @@ class PackingItemForm(forms.ModelForm):
         self.fields['weather_hot'].label = 'Hot'
         self.fields['weather_cold'].label = 'Cold'
         self._set_trip_category_fields_disabled(self._is_always_checked())
+
+    def _batch_names(self):
+        if not self.data:
+            return []
+        return [name.strip() for name in self.data.getlist('batch_names') if name.strip()]
 
     def _is_always_checked(self):
         if 'always' in self.data:
@@ -142,6 +151,15 @@ class PackingItemForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        if self.batch_add:
+            batch_names = self._batch_names()
+            if not batch_names:
+                raise ValidationError('Enter at least one item name for batch add.')
+            self.batch_names = batch_names
+            cleaned_data['name'] = batch_names[0]
+        elif not cleaned_data.get('name'):
+            self.add_error('name', 'This field is required.')
+
         if cleaned_data.get('always'):
             return cleaned_data
 
@@ -164,6 +182,33 @@ class PackingItemForm(forms.ModelForm):
             if commit:
                 instance.save(update_fields=['weather_hot', 'weather_cold'])
         return instance
+
+    def save_new_item(self, name):
+        item = PackingItem(
+            name=name,
+            section=self.cleaned_data['section'],
+            notes=self.cleaned_data.get('notes', ''),
+            always=self.cleaned_data.get('always', False),
+            packing_allocation=self.cleaned_data['packing_allocation'],
+        )
+        if item.always:
+            item.weather_hot = False
+            item.weather_cold = False
+        else:
+            item.weather_hot = self.cleaned_data.get('weather_hot', False)
+            item.weather_cold = self.cleaned_data.get('weather_cold', False)
+        item.save()
+        if item.always:
+            item.destinations.clear()
+            item.activities.clear()
+            item.accommodations.clear()
+            item.family_members.set(self.cleaned_data.get('family_members', []))
+        else:
+            item.destinations.set(self.cleaned_data.get('destinations', []))
+            item.activities.set(self.cleaned_data.get('activities', []))
+            item.accommodations.set(self.cleaned_data.get('accommodations', []))
+            item.family_members.set(self.cleaned_data.get('family_members', []))
+        return item
 
 
 class TripForm(forms.ModelForm):
