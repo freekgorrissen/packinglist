@@ -9,6 +9,25 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U packinglist -d packinglist"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgres://packinglist:packinglist@db:5432/packinglist
+      SECRET_KEY: dev-only-change-in-production
+      DEBUG: "True"
+      ALLOWED_HOSTS: localhost,127.0.0.1,0.0.0.0
+      SEED_DATA: "false"
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   postgres_data:

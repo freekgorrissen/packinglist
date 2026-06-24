@@ -19,10 +19,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         members = {}
         for name, member_type, icon in [
-            ('Alex', MemberType.ADULT, MemberIcon.MAN),
-            ('Jordan', MemberType.ADULT, MemberIcon.WOMAN),
-            ('Sam', MemberType.CHILD, MemberIcon.CHILD),
-            ('Riley', MemberType.CHILD, MemberIcon.CHILD),
+            ('Freek', MemberType.ADULT, MemberIcon.MAN),
+            ('Dominique', MemberType.ADULT, MemberIcon.WOMAN),
+            ('Maya', MemberType.CHILD, MemberIcon.CHILD),
+            ('Nata', MemberType.CHILD, MemberIcon.DOG),
         ]:
             member, _ = FamilyMember.objects.get_or_create(
                 name=name,

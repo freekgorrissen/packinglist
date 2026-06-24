@@ -10,17 +10,35 @@ A Django web app for generating printable packing lists based on trip details: f
 
 ## Setup
 
+### Docker (recommended)
+
+Run the app and PostgreSQL together:
+
+```bash
+docker compose up --build
+```
+
+The web container waits for PostgreSQL, runs migrations, and seeds starter data on first start. Open http://127.0.0.1:8000/
+
+To run in the background:
+
+```bash
+docker compose up --build -d
+```
+
+### Local development
+
 1. Create a virtual environment and install dependencies:
 
    ```bash
    pip install -r requirements.txt
    ```
 
-2. Copy environment file and start PostgreSQL:
+2. Copy environment file and start PostgreSQL only:
 
    ```bash
    copy .env.example .env
-   docker compose up -d
+   docker compose up -d db
    ```
 
 3. Run migrations and seed starter data:
