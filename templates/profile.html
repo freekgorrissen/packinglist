@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Profile — Packing List{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Profile</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <p class="text-muted mb-3">Username: <strong>{{ user.username }}</strong></p>
+
+                <h2 class="h5 card-title">Change password</h2>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% for field in password_form %}
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="invalid-feedback d-block">{{ field.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary">Change password</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -17,6 +18,11 @@ from app.models import (
 class ViewTests(TestCase):
     def setUp(self):
         self.client = Client()
+        self.user = get_user_model().objects.create_user(
+            username='testuser',
+            password='testpass123',
+        )
+        self.client.login(username='testuser', password='testpass123')
         self.section = PackingSection.objects.create(name='Clothing', sort_order=1)
         self.beach = DestinationCategory.objects.create(name='Beach')
         self.swimming = Activity.objects.create(name='Swimming')

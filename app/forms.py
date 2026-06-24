@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.forms import PasswordChangeForm
 from django.core.exceptions import ValidationError
 
 from app.models import (
@@ -195,3 +196,10 @@ class TripForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['weather_hot'].label = 'Hot'
         self.fields['weather_cold'].label = 'Cold'
+
+
+class StyledPasswordChangeForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
