@@ -1,3 +1,5 @@
+from itertools import groupby
+
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
@@ -41,6 +43,14 @@ class PackingItemListView(AppAccessMixin, ListView):
                 'family_members',
             )
         )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['section_groups'] = [
+            {'section': section, 'items': list(items)}
+            for section, items in groupby(context['items'], key=lambda item: item.section)
+        ]
+        return context
 
 
 class PackingItemFormMixin:

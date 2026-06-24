@@ -265,6 +265,30 @@ class ViewTests(TestCase):
         self.assertContains(response, 'Swimsuit')
         self.assertContains(response, 'Beach')
         self.assertContains(response, 'Camping')
+        self.assertContains(response, 'Family members')
+        self.assertNotContains(response, '<th>Section</th>')
+
+    def test_item_list_groups_by_section(self):
+        gear = PackingSection.objects.create(name='Gear', sort_order=2)
+        PackingItem.objects.create(name='Tent', section=gear)
+        response = self.client.get(reverse('item_list'))
+        self.assertContains(response, 'Clothing')
+        self.assertContains(response, 'Gear')
+        self.assertContains(response, f'section-items-{gear.pk}')
+
+    def test_item_list_row_links_to_edit(self):
+        response = self.client.get(reverse('item_list'))
+        self.assertContains(
+            response,
+            f'data-href="{reverse("item_update", args=[self.swimsuit.pk])}"',
+        )
+
+    def test_item_list_shows_family_members_separately(self):
+        self.swimsuit.family_members.add(self.alex)
+        response = self.client.get(reverse('item_list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Alex')
+        self.assertContains(response, 'Beach')
 
     def test_item_list_shows_weather_tags(self):
         self.swimsuit.weather_hot = True

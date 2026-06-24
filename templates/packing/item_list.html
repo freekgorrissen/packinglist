@@ -2,31 +2,108 @@
 
 {% block title %}Packing Items — Packing List{% endblock %}
 
+{% block extra_head %}
+<style>
+    .item-list-table th,
+    .item-list-table td {
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+        vertical-align: middle;
+    }
+
+    .item-row {
+        cursor: pointer;
+    }
+
+    .item-row:hover {
+        background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    .item-list-table tbody.section-header-row > tr > * {
+        --bs-table-bg: #fff;
+        --bs-table-striped-bg: #fff;
+        background-color: #fff;
+    }
+
+    .section-header-row td {
+        border-top-width: 1px;
+        padding-top: 0.35rem;
+        padding-bottom: 0.35rem;
+    }
+
+    .item-list-table tbody.section-header-row:not(:first-of-type) td {
+        padding-top: 1.25rem;
+    }
+
+    .item-list-table tbody.section-items tr:last-child td {
+        padding-bottom: 0.75rem;
+    }
+
+    .section-toggle {
+        font-weight: 600;
+        text-decoration: none;
+        color: inherit;
+        padding: 0;
+    }
+
+    .section-toggle .bi {
+        transition: transform 0.15s ease-in-out;
+    }
+
+    .section-toggle.collapsed .bi {
+        transform: rotate(-90deg);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0">Packing Items</h1>
     <a class="btn btn-primary" href="{% url 'item_create' %}">Add Item</a>
 </div>
 
-{% if items %}
-<table class="table table-striped">
+{% if section_groups %}
+<table class="table table-striped item-list-table">
     <thead>
         <tr>
             <th>Name</th>
-            <th>Section</th>
+            <th>Family members</th>
             <th>Tags</th>
             <th class="text-end">Actions</th>
         </tr>
     </thead>
-    <tbody>
-        {% for item in items %}
+    {% for group in section_groups %}
+    <tbody class="section-header-row">
         <tr>
+            <td colspan="4" class="border-0">
+                <button type="button"
+                        class="btn btn-link section-toggle p-0"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#section-items-{{ group.section.pk }}"
+                        aria-expanded="true"
+                        aria-controls="section-items-{{ group.section.pk }}">
+                    <i class="bi bi-chevron-down"></i>
+                    {{ group.section.name }}
+                    <span class="text-muted fw-normal">({{ group.items|length }})</span>
+                </button>
+            </td>
+        </tr>
+    </tbody>
+    <tbody class="collapse show section-items" id="section-items-{{ group.section.pk }}">
+        {% for item in group.items %}
+        <tr class="item-row" data-href="{% url 'item_update' item.pk %}">
             <td>
                 {{ item.name }}
                 {% if item.always %}<span class="badge bg-dark">Always</span>{% endif %}
                 <span class="badge bg-info text-dark">{{ item.get_packing_allocation_display }}</span>
             </td>
-            <td>{{ item.section.name }}</td>
+            <td>
+                {% for member in item.family_members.all %}
+                    <span class="badge bg-warning text-dark">{{ member.name }}</span>
+                {% empty %}
+                    <span class="text-muted">—</span>
+                {% endfor %}
+            </td>
             <td>
                 {% for dest in item.destinations.all %}
                     <span class="badge bg-secondary">{{ dest.name }}</span>
@@ -37,28 +114,52 @@
                 {% for acc in item.accommodations.all %}
                     <span class="badge bg-success">{{ acc.name }}</span>
                 {% endfor %}
-                {% for member in item.family_members.all %}
-                    <span class="badge bg-warning text-dark">{{ member.name }}</span>
-                {% endfor %}
                 {% if item.weather_hot %}
                     <span class="badge bg-danger">Hot</span>
                 {% endif %}
                 {% if item.weather_cold %}
                     <span class="badge bg-info text-dark">Cold</span>
                 {% endif %}
-                {% if not item.always and not item.destinations.all and not item.activities.all and not item.accommodations.all and not item.family_members.all and not item.weather_hot and not item.weather_cold %}
-                    <span class="text-muted">No categories</span>
+                {% if not item.destinations.all and not item.activities.all and not item.accommodations.all and not item.weather_hot and not item.weather_cold %}
+                    <span class="text-muted">—</span>
                 {% endif %}
             </td>
-            <td class="text-end">
+            <td class="text-end item-row-actions">
                 <a class="btn btn-sm btn-outline-secondary" href="{% url 'item_update' item.pk %}">Edit</a>
                 <a class="btn btn-sm btn-outline-danger" href="{% url 'item_delete' item.pk %}">Delete</a>
             </td>
         </tr>
         {% endfor %}
     </tbody>
+    {% endfor %}
 </table>
 {% else %}
 <p class="text-muted">No packing items yet. <a href="{% url 'item_create' %}">Add one</a>.</p>
 {% endif %}
+
+<script>
+(function () {
+    document.querySelectorAll('.item-row[data-href]').forEach(function (row) {
+        row.addEventListener('click', function (event) {
+            if (event.target.closest('.item-row-actions')) {
+                return;
+            }
+            window.location.href = row.dataset.href;
+        });
+    });
+
+    document.querySelectorAll('.section-toggle').forEach(function (toggle) {
+        const target = document.querySelector(toggle.dataset.bsTarget);
+        if (!target) {
+            return;
+        }
+        target.addEventListener('show.bs.collapse', function () {
+            toggle.classList.remove('collapsed');
+        });
+        target.addEventListener('hide.bs.collapse', function () {
+            toggle.classList.add('collapsed');
+        });
+    });
+})();
+</script>
 {% endblock %}
