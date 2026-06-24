@@ -23,7 +23,7 @@ services:
       DATABASE_URL: postgres://packinglist:packinglist@db:5432/packinglist
       SECRET_KEY: dev-only-change-in-production
       DEBUG: "True"
-      ALLOWED_HOSTS: localhost,127.0.0.1,0.0.0.0
+      ALLOWED_HOSTS: "*"
       SEED_DATA: "false"
     depends_on:
       db:

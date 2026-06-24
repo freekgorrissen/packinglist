@@ -17,10 +17,21 @@ SECRET_KEY = os.environ.get(
     'django-insecure-oo(d@$q^pv!m5gteh6tpx(@1$eatgij9@*pfw(nmd-xbo241uv',
 )
 DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
-    if host.strip()
+
+_allowed_hosts = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').strip()
+if _allowed_hosts == '*':
+    ALLOWED_HOSTS = ['*']
+else:
+    ALLOWED_HOSTS = [
+        host.strip()
+        for host in _allowed_hosts.split(',')
+        if host.strip()
+    ]
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
+    if origin.strip()
 ]
 
 INSTALLED_APPS = [
