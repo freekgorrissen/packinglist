@@ -1,6 +1,7 @@
 from django.urls import path
 
 from app.views.home import HomeView
+from app.views.profile import ProfileView
 from app.views.packing_crud import (
     PackingItemCreateView,
     PackingItemDeleteView,
@@ -39,6 +40,7 @@ from app.views.trips import (
 
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),
+    path('profile/', ProfileView.as_view(), name='profile'),
     path('members/', MemberListView.as_view(), name='member_list'),
     path('members/new/', MemberCreateView.as_view(), name='member_create'),
     path('members/<int:pk>/edit/', MemberUpdateView.as_view(), name='member_update'),

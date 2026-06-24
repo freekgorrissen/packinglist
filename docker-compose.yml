@@ -25,6 +25,9 @@ services:
       DEBUG: "True"
       ALLOWED_HOSTS: "*"
       SEED_DATA: "false"
+      # Set credentials for the initial app user (created once on first start)
+      APP_USERNAME: admin
+      APP_PASSWORD: changeme
     depends_on:
       db:
         condition: service_healthy

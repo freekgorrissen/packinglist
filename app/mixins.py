@@ -1,7 +1,9 @@
-"""Access mixin placeholder for future authentication."""
+"""Access control for application views."""
+
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-class AppAccessMixin:
-    """No-op now; swap to LoginRequiredMixin when auth is added."""
+class AppAccessMixin(LoginRequiredMixin):
+    """Require a logged-in user for all application views."""
 
-    pass
+    login_url = 'login'

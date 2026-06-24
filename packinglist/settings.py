@@ -116,3 +116,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'login'
+
+# Session cookie auth — users stay logged in across browser restarts.
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 14  # 2 weeks
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
