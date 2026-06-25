@@ -145,7 +145,22 @@ class ViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Trip.objects.filter(name='Mountain hike').exists())
 
-    def test_item_form_requires_category_when_not_always(self):
+    def test_item_form_requires_family_member_when_missing(self):
+        response = self.client.post(
+            reverse('item_create'),
+            {
+                'name': 'Missing members',
+                'section': self.section.pk,
+                'notes': '',
+                'packing_allocation': 'shared',
+                'destinations': [self.beach.pk],
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Select at least one family member.')
+        self.assertFalse(PackingItem.objects.filter(name='Missing members').exists())
+
+    def test_item_form_requires_trip_category_when_not_always(self):
         response = self.client.post(
             reverse('item_create'),
             {
@@ -153,11 +168,62 @@ class ViewTests(TestCase):
                 'section': self.section.pk,
                 'notes': '',
                 'packing_allocation': 'shared',
+                'family_members': [self.alex.pk],
             },
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'For destinations, accommodations, and family members')
+        self.assertContains(
+            response,
+            'Select at least one destination, activity, or accommodation.',
+        )
         self.assertFalse(PackingItem.objects.filter(name='Missing categories').exists())
+
+    def test_item_form_requires_family_member_when_always(self):
+        response = self.client.post(
+            reverse('item_create'),
+            {
+                'name': 'Always no members',
+                'section': self.section.pk,
+                'notes': '',
+                'always': 'on',
+                'packing_allocation': 'shared',
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Select at least one family member.')
+        self.assertFalse(PackingItem.objects.filter(name='Always no members').exists())
+
+    def test_item_form_accepts_activity_with_family_member(self):
+        response = self.client.post(
+            reverse('item_create'),
+            {
+                'name': 'Swim goggles',
+                'section': self.section.pk,
+                'notes': '',
+                'packing_allocation': 'shared',
+                'family_members': [self.alex.pk],
+                'activities': [self.swimming.pk],
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        item = PackingItem.objects.get(name='Swim goggles')
+        self.assertEqual(list(item.activities.all()), [self.swimming])
+        self.assertEqual(list(item.family_members.all()), [self.alex])
+
+    def test_item_form_requires_family_member_even_with_destination(self):
+        response = self.client.post(
+            reverse('item_create'),
+            {
+                'name': 'Beach only',
+                'section': self.section.pk,
+                'notes': '',
+                'packing_allocation': 'shared',
+                'destinations': [self.beach.pk],
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Select at least one family member.')
+        self.assertFalse(PackingItem.objects.filter(name='Beach only').exists())
 
     def test_item_form_always_clears_trip_categories_not_family_members(self):
         response = self.client.post(
@@ -190,6 +256,7 @@ class ViewTests(TestCase):
                 'always': 'on',
                 'packing_allocation': 'shared',
                 'weather_hot': 'on',
+                'family_members': [self.alex.pk],
             },
         )
         self.assertEqual(response.status_code, 302)
@@ -206,6 +273,7 @@ class ViewTests(TestCase):
                 'notes': '',
                 'packing_allocation': 'shared',
                 'destinations': [self.beach.pk],
+                'family_members': [self.alex.pk],
                 'save_and_add': '1',
             },
         )
@@ -223,6 +291,7 @@ class ViewTests(TestCase):
                 'notes': 'Beach gear',
                 'packing_allocation': 'shared',
                 'destinations': [self.beach.pk],
+                'family_members': [self.alex.pk],
             },
         )
         self.assertEqual(response.status_code, 302)
@@ -253,6 +322,7 @@ class ViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Batch add')
         self.assertContains(response, 'data-member-type="all"')
+        self.assertContains(response, 'data-member-type="humans"')
         self.assertContains(response, 'data-member-type="adult"')
         self.assertContains(response, 'data-member-type="child"')
         self.assertContains(response, 'data-member-type="pet"')
@@ -266,6 +336,8 @@ class ViewTests(TestCase):
         self.assertContains(response, 'Beach')
         self.assertContains(response, 'Camping')
         self.assertContains(response, 'Family members')
+        self.assertContains(response, 'Packing')
+        self.assertContains(response, '>Always</span>')
         self.assertNotContains(response, '<th>Section</th>')
 
     def test_item_list_groups_by_section(self):

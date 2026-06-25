@@ -4,7 +4,7 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
-from app.forms import CATEGORY_HELPER_TEXT, PackingItemForm, PackingSectionForm
+from app.forms import FAMILY_MEMBERS_REQUIRED_TEXT, PackingItemForm, PackingSectionForm
 from app.mixins import AppAccessMixin
 from app.models import FamilyMember, MemberType, PackingItem, PackingSection
 from app.views.crud_factory import CrudConfig, make_create_view, make_delete_view, make_list_view, make_update_view
@@ -56,13 +56,17 @@ class PackingItemListView(AppAccessMixin, ListView):
 class PackingItemFormMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['category_helper_text'] = CATEGORY_HELPER_TEXT
-        context['family_member_ids_by_type'] = {
+        context['family_members_required_text'] = FAMILY_MEMBERS_REQUIRED_TEXT
+        ids_by_type = {
             member_type.value: list(
                 FamilyMember.objects.filter(member_type=member_type.value).values_list('pk', flat=True)
             )
             for member_type in MemberType
         }
+        ids_by_type['humans'] = list(
+            FamilyMember.objects.exclude(member_type=MemberType.PET).values_list('pk', flat=True)
+        )
+        context['family_member_ids_by_type'] = ids_by_type
         return context
 
 

@@ -32,15 +32,8 @@ PACKING_ITEM_ALWAYS_GREYED_FIELDS = (
     *PACKING_ITEM_TRIP_CATEGORY_FIELDS,
 )
 PACKING_ITEM_CATEGORY_FIELDS = PACKING_ITEM_TRIP_CATEGORY_FIELDS + ('family_members',)
-REQUIRED_CATEGORY_FIELDS = (
-    'destinations',
-    'accommodations',
-    'family_members',
-)
-CATEGORY_HELPER_TEXT = (
-    'For destinations, accommodations, and family members, check at least one option. '
-    'Activities are always optional. When Always is checked, only family members can be specified.'
-)
+
+FAMILY_MEMBERS_REQUIRED_TEXT = 'Select at least one family member.'
 
 
 class FamilyMemberForm(forms.ModelForm):
@@ -160,15 +153,15 @@ class PackingItemForm(forms.ModelForm):
         elif not cleaned_data.get('name'):
             self.add_error('name', 'This field is required.')
 
+        if not cleaned_data.get('family_members'):
+            raise ValidationError(FAMILY_MEMBERS_REQUIRED_TEXT)
+
         if cleaned_data.get('always'):
             return cleaned_data
-
-        has_required_category = any(
-            cleaned_data.get(field_name) for field_name in REQUIRED_CATEGORY_FIELDS
-        )
-        if not has_required_category:
-            raise ValidationError(CATEGORY_HELPER_TEXT)
-
+        
+        if not any(cleaned_data.get(field_name) for field_name in PACKING_ITEM_TRIP_CATEGORY_FIELDS):
+            raise ValidationError('Select at least one destination, activity, or accommodation.')
+        
         return cleaned_data
 
     def save(self, commit=True):

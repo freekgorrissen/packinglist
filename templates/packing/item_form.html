@@ -97,6 +97,7 @@
             <label class="form-label mb-0" for="{{ form.family_members.id_for_label }}">{{ form.family_members.label }}</label>
             <div class="btn-group btn-group-sm" role="group" aria-label="Family member shortcuts">
                 <button type="button" class="btn btn-outline-secondary member-shortcut" data-member-type="all">All</button>
+                <button type="button" class="btn btn-outline-secondary member-shortcut" data-member-type="humans">Humans</button>
                 <button type="button" class="btn btn-outline-secondary member-shortcut" data-member-type="adult">Adults</button>
                 <button type="button" class="btn btn-outline-secondary member-shortcut" data-member-type="child">Children</button>
                 <button type="button" class="btn btn-outline-secondary member-shortcut" data-member-type="pet">Pets</button>
@@ -128,7 +129,6 @@
 
     <div class="mb-3 trip-category-field category-fields-start">
         <label class="form-label" for="{{ form.destinations.id_for_label }}">{{ form.destinations.label }}</label>
-        <p class="form-text category-helper-text">{{ category_helper_text }}</p>
         <div class="border rounded p-3 category-options">
             {{ form.destinations }}
         </div>
@@ -149,7 +149,6 @@
 
     <div class="mb-3 trip-category-field">
         <label class="form-label">Weather</label>
-        <p class="form-text">Optional. When set, this item is only included on trips with matching weather.</p>
         <div class="border rounded p-3 category-options">
             <div>
                 <label for="{{ form.weather_hot.id_for_label }}">

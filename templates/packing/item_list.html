@@ -36,7 +36,7 @@
     }
 
     .item-list-table tbody.section-items tr:last-child td {
-        padding-bottom: 0.75rem;
+        padding-bottom: inherit
     }
 
     .section-toggle {
@@ -67,6 +67,7 @@
     <thead>
         <tr>
             <th>Name</th>
+            <th>Packing</th>
             <th>Family members</th>
             <th>Tags</th>
             <th class="text-end">Actions</th>
@@ -75,7 +76,7 @@
     {% for group in section_groups %}
     <tbody class="section-header-row">
         <tr>
-            <td colspan="4" class="border-0">
+            <td colspan="5" class="border-0">
                 <button type="button"
                         class="btn btn-link section-toggle p-0"
                         data-bs-toggle="collapse"
@@ -92,9 +93,8 @@
     <tbody class="collapse show section-items" id="section-items-{{ group.section.pk }}">
         {% for item in group.items %}
         <tr class="item-row" data-href="{% url 'item_update' item.pk %}">
+            <td>{{ item.name }}</td>
             <td>
-                {{ item.name }}
-                {% if item.always %}<span class="badge bg-dark">Always</span>{% endif %}
                 <span class="badge bg-info text-dark">{{ item.get_packing_allocation_display }}</span>
             </td>
             <td>
@@ -105,6 +105,9 @@
                 {% endfor %}
             </td>
             <td>
+                {% if item.always %}
+                    <span class="badge bg-dark">Always</span>
+                {% endif %}
                 {% for dest in item.destinations.all %}
                     <span class="badge bg-secondary">{{ dest.name }}</span>
                 {% endfor %}
@@ -120,7 +123,7 @@
                 {% if item.weather_cold %}
                     <span class="badge bg-info text-dark">Cold</span>
                 {% endif %}
-                {% if not item.destinations.all and not item.activities.all and not item.accommodations.all and not item.weather_hot and not item.weather_cold %}
+                {% if not item.always and not item.destinations.all and not item.activities.all and not item.accommodations.all and not item.weather_hot and not item.weather_cold %}
                     <span class="text-muted">—</span>
                 {% endif %}
             </td>
