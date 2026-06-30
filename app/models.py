@@ -72,7 +72,7 @@ class PackingSection(models.Model):
     sort_order = models.PositiveIntegerField(default=0)
 
     class Meta:
-        ordering = ['sort_order', 'name']
+        ordering = ['name', 'sort_order']
 
     def __str__(self):
         return self.name
