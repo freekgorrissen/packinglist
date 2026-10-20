@@ -27,7 +27,7 @@
         <div class="row g-3 packing-column-row">
             {% for column in section_display.columns %}
             <div class="col packing-column">
-                <div class="packing-column-card h-100">
+                <div class="packing-column-card h-100{% if single_traveller %} packing-column-card--single{% endif %}">
                     {% if not single_traveller %}
                     <h3 class="h6 column-header mb-2 d-flex align-items-center gap-2">
                         {% if column.member_icon %}
