@@ -52,6 +52,11 @@ class TripPackingListView(AppAccessMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         entries = generate_packing_list(self.object)
-        context['display_sections'] = group_for_display(entries)
+        single_traveller = self.object.family_members.count() == 1
+        context['display_sections'] = group_for_display(
+            entries,
+            merge_columns=single_traveller,
+        )
+        context['single_traveller'] = single_traveller
         context['entry_count'] = len(entries)
         return context

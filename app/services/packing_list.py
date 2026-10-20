@@ -231,11 +231,28 @@ class PackingSectionDisplay:
 GROUP_LABEL_ORDER = ('Adults', 'Children', 'Pets')
 
 
-def group_for_display(entries: list[PackingListEntry]) -> list[PackingSectionDisplay]:
-    """Group entries by section into columns for person, shared, and group allocations."""
+def group_for_display(
+    entries: list[PackingListEntry],
+    merge_columns: bool = False,
+) -> list[PackingSectionDisplay]:
+    """Group entries by section into columns for person, shared, and group allocations.
+
+    With merge_columns=True (e.g. a trip with a single traveller), each section gets
+    one unlabelled column holding all of its entries, sorted by item name.
+    """
     display: list[PackingSectionDisplay] = []
 
     for section, section_entries in group_by_section(entries):
+        if merge_columns:
+            merged = sorted(section_entries, key=lambda e: e.item.name)
+            display.append(
+                PackingSectionDisplay(
+                    section=section,
+                    columns=[PackingColumnDisplay(label='', entries=merged)],
+                )
+            )
+            continue
+
         by_person: dict[int, list[PackingListEntry]] = {}
         shared_entries: list[PackingListEntry] = []
         by_group: dict[str, list[PackingListEntry]] = {}

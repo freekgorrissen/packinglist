@@ -301,6 +301,25 @@ class PackingListServiceTests(TestCase):
             any(entry.item.name == 'Passport' for entry in shared_column.entries)
         )
 
+    def test_group_for_display_merge_columns(self):
+        solo_trip = Trip.objects.create(name='Solo')
+        solo_trip.family_members.set([self.alex])
+        PackingItem.objects.create(
+            name='First aid kit',
+            section=self.section,
+            packing_allocation=PackingAllocation.ADULTS_CHILDREN,
+            always=True,
+        )
+        entries = generate_packing_list(solo_trip)
+        display = group_for_display(entries, merge_columns=True)
+        gear = next(section for section in display if section.section.name == 'Gear')
+        self.assertEqual(len(gear.columns), 1)
+        names = [entry.item.name for entry in gear.columns[0].entries]
+        self.assertIn('Toothbrush', names)
+        self.assertIn('Passport', names)
+        self.assertIn('First aid kit', names)
+        self.assertEqual(names, sorted(names))
+
     def test_empty_trip_still_includes_universal_items(self):
         empty_trip = Trip.objects.create(name='Empty')
         names = [e.item.name for e in generate_packing_list(empty_trip)]
