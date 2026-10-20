@@ -1,11 +1,13 @@
 # Packing List
 
-A Django web app for generating printable packing lists based on trip details: family members, destinations, activities, and accommodations.
+Every time I pack for a trip, I start by making a packinglist. But I always forget to put something on there. To help myself and my family, I made this packinglist app.
+
+It is a Django web app for generating printable packing lists based on trip details: who is coming, where we're going, what we're doing and where we're staying. For example, it will always include sunscreen for a beach trip and a warm hat when the weather is cold.
 
 ## Stack
 
 - Django 6
-- PostgreSQL (SQLite fallback when `DATABASE_URL` is not set)
+- PostgreSQL (SQLite fallback when `DATABASE_URL` is not set, for development)
 - Bootstrap 5 templates
 
 ## Setup
@@ -19,6 +21,8 @@ docker compose up --build
 ```
 
 The web container waits for PostgreSQL, runs migrations, and creates the initial login user. Open http://127.0.0.1:8000/ and sign in with the credentials from `APP_USERNAME` / `APP_PASSWORD` in `docker-compose.yml` (default `admin` / `changeme`).
+
+**Don't forget to change the admin password!**
 
 To run in the background:
 
@@ -74,7 +78,7 @@ Or set `APP_USERNAME` and `APP_PASSWORD` before starting Docker — the entrypoi
 To use the app from phones or other devices on your Wi‑Fi:
 
 1. Set `ALLOWED_HOSTS=*` in `.env` or `docker-compose.yml` (requires `DEBUG=True`).
-2. Find your PC's LAN IP with `ipconfig` (e.g. `192.168.1.42`).
+2. Find your PC's LAN IP with `ipconfig` (e.g. `192.168.1.42`). (set static IP address in your router, so the address doesn't change)
 3. Open `http://192.168.1.42:8000/` on the other device.
 4. Allow inbound TCP port 8000 through Windows Firewall if needed.
 5. If form submissions fail with a CSRF error, set `CSRF_TRUSTED_ORIGINS=http://192.168.1.42:8000`.
@@ -106,4 +110,8 @@ python manage.py test
 
 ## Future work
 
-- Azure deployment via environment variables (`DATABASE_URL`, `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`)
+- Cloud (Azure?) deployment via environment variables (`DATABASE_URL`, `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`)
+- Make it possible to use the packinglist online rather than printed: persist 'checked' state of items on packing list. 
+- If previous is done, allow users to exclude items from the list or add trip-specific custom items
+- Add more users, so I know who to blame when something is checked off but not packed
+- Improve the UI of the packingitems list: add filtering and searching
