@@ -50,6 +50,7 @@ class PackingItemListView(AppAccessMixin, ListView):
             {'section': section, 'items': list(items)}
             for section, items in groupby(context['items'], key=lambda item: item.section)
         ]
+        context['section_groups'].sort(key=lambda group: group['section'].name)
         return context
 
 

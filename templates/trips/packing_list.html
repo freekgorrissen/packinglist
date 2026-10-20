@@ -21,9 +21,10 @@
 <h1 class="h2 mb-3 d-none d-print-block border-bottom">Packinglist {{ trip.name }}</h1>
 
 {% if display_sections %}
+<div class="packing-sections{% if single_traveller %} packing-sections--two-col{% endif %}">
     {% for section_display in display_sections %}
     <section class="packing-section mb-2">
-        <h2 class="h4 pb-0 mb-1">{{ section_display.section.name }}</h2>
+        <h2 class="h5 pb-0 mb-1">{{ section_display.section.name }}</h2>
 
         <div class="row g-3 packing-column-row">
             {% for column in section_display.columns %}
@@ -53,6 +54,7 @@
         </div>
     </section>
     {% endfor %}
+</div>
 {% else %}
 <p class="text-muted">No packing items match this trip. Add items or adjust trip categories.</p>
 {% endif %}
