@@ -123,6 +123,21 @@ class ViewTests(TestCase):
         self.assertContains(response, 'Toothbrush')
         self.assertNotContains(response, 'Toothbrush (Alex)')
 
+    def test_packing_list_view_single_traveller_merges_columns(self):
+        PackingItem.objects.create(
+            name='Toothbrush',
+            section=self.section,
+            packing_allocation='individual',
+            always=True,
+        )
+        self.trip.family_members.set([self.alex])
+        response = self.client.get(reverse('trip_packing_list', args=[self.trip.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'column-header')
+        self.assertContains(response, 'packing-column-card', count=1)
+        self.assertContains(response, 'Toothbrush')
+        self.assertContains(response, 'Passport')
+
     def test_packing_list_view_shows_matching_items(self):
         response = self.client.get(reverse('trip_packing_list', args=[self.trip.pk]))
         self.assertEqual(response.status_code, 200)

@@ -18,22 +18,25 @@
         <a class="btn btn-outline-secondary" href="{% url 'trip_list' %}">Back to Trips</a>
     </div>
 </div>
+<h1 class="h2 mb-3 d-none d-print-block border-bottom">Packinglist {{ trip.name }}</h1>
 
 {% if display_sections %}
     {% for section_display in display_sections %}
-    <section class="packing-section mb-4">
-        <h2 class="h4 border-bottom pb-2">{{ section_display.section.name }}</h2>
+    <section class="packing-section mb-2">
+        <h2 class="h4 pb-0 mb-1">{{ section_display.section.name }}</h2>
 
         <div class="row g-3 packing-column-row">
             {% for column in section_display.columns %}
             <div class="col packing-column">
-                <div class="packing-column-card h-100">
+                <div class="packing-column-card h-100{% if single_traveller %} packing-column-card--single{% endif %}">
+                    {% if not single_traveller %}
                     <h3 class="h6 column-header mb-2 d-flex align-items-center gap-2">
                         {% if column.member_icon %}
                             {% member_icon column.member_icon %}
                         {% endif %}
                         <span>{{ column.label }}</span>
                     </h3>
+                    {% endif %}
                     <ul class="list-unstyled packing-items mb-0">
                         {% for entry in column.entries %}
                         <li class="packing-item">
